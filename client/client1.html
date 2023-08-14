@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>webSocket聊天</title>
+</head>
+<body>
+    <h2>webSocket聊天</h2>
+    <div id="app">
+        <input type="text" id="RoomId" placeholder="请输入roomID">
+        <button id="join">加入</button>
+        <button id="leave">离开</button>
+        <span></span>
+    </div>
+    <div id="videos">
+        <video id="localVideo" autoplay muted playsinline style="border: 1px solid #000;">本地窗口</video>
+        <video id="remoteVideo" autoplay playsinline style="border: 1px solid #000;">远程窗口</video>
+    </div>
+</body>
+<script src="./client.js"></script>
+</html>
