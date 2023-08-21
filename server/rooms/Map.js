@@ -131,4 +131,4 @@ class Client {
 // console.log('get client->' + 'uid:' + client.uid +', conn:' + client.conn + ', roomId: '
 // + client.roomId);
 // }
-module.export={ZeroRTCMap,Client}
+module.exports={ZeroRTCMap,Client}

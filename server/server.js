@@ -7,87 +7,78 @@ const SIGNAL_TYPE_PEER_LEAVE="peer-leave"; //服务器->浏览器，谁离开了
 const SIGNAL_TYPE_OFFER="offer"; //
 const SIGNAL_TYPE_ANSWER="answer";
 const SIGNAL_TYPE_CANDIDATE="candidate";
-const USER_max=3;
-const port=7777
+const {USER_max,port}=require("./.env/setting.js")
 
 // 导包，定义
 const ws=require("nodejs-websocket")
-// const { ZeroRTCMap }=require("./rooms/Map.js")
+const {ZeroRTCMap,Client} =require("./rooms/Map")
 // 这是一个大数组,存Maps
-class ZeroRTCMap {
-    constructor() {
-        this._entrys = new Array();
-        // 插入
-        this.put = function (key, value) {
-            if (key == null || key == undefined) {
-                return;
-            }
-            var index = this._getIndex(key);
-            if (index == -1) {
-                var entry = new Object();
-                entry.key = key;
-                entry.value = value;
-                this._entrys[this._entrys.length] = entry;
-            } else {
-                this._entrys[index].value = value;
-            }
-        };
-        // 根据key获取value
-        this.get = function (key) {
-            var index = this._getIndex(key);
-            return (index != -1) ? this._entrys[index].value : null;
-        };
-        // 移除key-value
-        this.remove = function (key) {
-            var index = this._getIndex(key);
-            if (index != -1) {
-                this._entrys.splice(index, 1);
-            }
-        };
-        // 清空map
-        this.clear = function () {
-            this._entrys.length = 0;
-        };
-        // 判断是否包含key
-        this.contains = function (key) {
-            var index = this._getIndex(key);
-            return (index != -1) ? true : false;
-        };
-        // map内key-value的数量
-        this.size = function () {
-            return this._entrys.length;
-        };
-        // 获取所有的key
-        this.getEntrys = function () {
-            return this._entrys;
-        };
-        // 内部函数
-        this._getIndex = function (key) {
-            if (key == null || key == undefined) {
-                return -1;
-            }
-            var _length = this._entrys.length;
-            for (var i = 0; i < _length; i++) {
-                var entry = this._entrys[i];
-                if (entry == null || entry == undefined) {
-                    continue;
-                }
-                if (entry.key === key) { // equal
-                    return i;
-                }
-            }
-            return -1;
-        };
-    }
-}
-class Client {
-    constructor(uid, conn, roomId) {
-        this.uid = uid; // 用户所属的id
-        this.conn = conn; // uid对应的websocket连接
-        this.roomId = roomId;
-        console.log('uid:' + uid + ', conn:' + conn + ', roomId: ' + roomId);
-    }
-}
+// class ZeroRTCMap {
+//     constructor() {
+//         this._entrys = new Array();
+//         // 插入
+//         this.put = function (key, value) {
+//             if (key == null || key == undefined) {
+//                 return;
+//             }
+//             var index = this._getIndex(key);
+//             if (index == -1) {
+//                 var entry = new Object();
+//                 entry.key = key;
+//                 entry.value = value;
+//                 this._entrys[this._entrys.length] = entry;
+//             } else {
+//                 this._entrys[index].value = value;
+//             }
+//         };
+//         // 根据key获取value
+//         this.get = function (key) {
+//             var index = this._getIndex(key);
+//             return (index != -1) ? this._entrys[index].value : null;
+//         };
+//         // 移除key-value
+//         this.remove = function (key) {
+//             var index = this._getIndex(key);
+//             if (index != -1) {
+//                 this._entrys.splice(index, 1);
+//             }
+//         };
+//         // 清空map
+//         this.clear = function () {
+//             this._entrys.length = 0;
+//         };
+//         // 判断是否包含key
+//         this.contains = function (key) {
+//             var index = this._getIndex(key);
+//             return (index != -1) ? true : false;
+//         };
+//         // map内key-value的数量
+//         this.size = function () {
+//             return this._entrys.length;
+//         };
+//         // 获取所有的key
+//         this.getEntrys = function () {
+//             return this._entrys;
+//         };
+//         // 内部函数
+//         this._getIndex = function (key) {
+//             if (key == null || key == undefined) {
+//                 return -1;
+//             }
+//             var _length = this._entrys.length;
+//             for (var i = 0; i < _length; i++) {
+//                 var entry = this._entrys[i];
+//                 if (entry == null || entry == undefined) {
+//                     continue;
+//                 }
+//                 if (entry.key === key) { // equal
+//                     return i;
+//                 }
+//             }
+//             return -1;
+//         };
+//     }
+// }
 
 // let user=0;
 
@@ -355,6 +346,16 @@ const server=ws.createServer((conn)=>{
         
         conn.on("error",(err)=>{
             console.info('监听到错误'+err);
+            let CLIENTS=clients.getEntrys()
+            for (let i in  CLIENTS) {
+            if (CLIENTS[i].value.conn === conn) {
+              console.log('Leaving client found:', CLIENTS[i].value.uid);
+            //   复用"用户离开函数":handleLeave:
+              let message={roomId:CLIENTS[i].value.roomId,uid:CLIENTS[i].value.uid}
+              handleLeave(message)
+              break;
+            }
+          }
         })
 }).listen(port);
 

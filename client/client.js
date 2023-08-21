@@ -227,7 +227,8 @@ class ZeroRTCEngine{
         this.signaling.send(message);
     }
 }
-zeroRTC=new ZeroRTCEngine("ws://127.0.0.1:7777")
+zeroRTC=new ZeroRTCEngine("wss://8.134.73.52:8888/ws")
+// zeroRTC=new ZeroRTCEngine("ws://127.0.0.1:7777")
 
 function createPeerConnection(remoteUid){
     // 配置coturn服务器，设置stun/turn规则
@@ -253,6 +254,8 @@ function createPeerConnection(remoteUid){
         ]
     }
 
+    console.log(remoteUid);
+    
     pc = new RTCPeerConnection(defaultConfiguration);
         pc.onicecandidate = function(event) {
             handleIceCandidate(event, remoteUid); // Pass remoteUid as an argument to handleIceCandidate
@@ -461,13 +464,15 @@ function handleRemoteAnswer(message){
     console.log('接收到远端浏览器的answer');
     let desc =JSON.parse(message.msg);
     pc.setRemoteDescription(new RTCSessionDescription(desc))
-    .then(() => {
-      // 成功设置远程的 Session Description，继续 ICE candidate 的交换和收集等操作
-      pc.onicecandidate = handleIceCandidate
-    })
-    .catch((error) => {
-      console.error('设置远程Session Description时出错：', error);
-    });
+    // .then(() => {
+    //   // 成功设置远程的 Session Description，继续 ICE candidate 的交换和收集等操作
+    //   pc.onicecandidate = function(event) {
+    //     handleIceCandidate(event, message.uid); // Pass remoteUid as an argument to handleIceCandidate
+    // };
+    // })
+    // .catch((error) => {
+    //   console.error('设置远程Session Description时出错：', error);
+    // });
     
 }
 function handleRemoteCandidate(message){
