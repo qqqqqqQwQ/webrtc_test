@@ -12,75 +12,7 @@ const {USER_max,port}=require("./.env/setting.js")
 // 导包，定义
 const ws=require("nodejs-websocket")
 const {ZeroRTCMap,Client} =require("./rooms/Map")
-// 这是一个大数组,存Maps
-// class ZeroRTCMap {
-//     constructor() {
-//         this._entrys = new Array();
-//         // 插入
-//         this.put = function (key, value) {
-//             if (key == null || key == undefined) {
-//                 return;
-//             }
-//             var index = this._getIndex(key);
-//             if (index == -1) {
-//                 var entry = new Object();
-//                 entry.key = key;
-//                 entry.value = value;
-//                 this._entrys[this._entrys.length] = entry;
-//             } else {
-//                 this._entrys[index].value = value;
-//             }
-//         };
-//         // 根据key获取value
-//         this.get = function (key) {
-//             var index = this._getIndex(key);
-//             return (index != -1) ? this._entrys[index].value : null;
-//         };
-//         // 移除key-value
-//         this.remove = function (key) {
-//             var index = this._getIndex(key);
-//             if (index != -1) {
-//                 this._entrys.splice(index, 1);
-//             }
-//         };
-//         // 清空map
-//         this.clear = function () {
-//             this._entrys.length = 0;
-//         };
-//         // 判断是否包含key
-//         this.contains = function (key) {
-//             var index = this._getIndex(key);
-//             return (index != -1) ? true : false;
-//         };
-//         // map内key-value的数量
-//         this.size = function () {
-//             return this._entrys.length;
-//         };
-//         // 获取所有的key
-//         this.getEntrys = function () {
-//             return this._entrys;
-//         };
-//         // 内部函数
-//         this._getIndex = function (key) {
-//             if (key == null || key == undefined) {
-//                 return -1;
-//             }
-//             var _length = this._entrys.length;
-//             for (var i = 0; i < _length; i++) {
-//                 var entry = this._entrys[i];
-//                 if (entry == null || entry == undefined) {
-//                     continue;
-//                 }
-//                 if (entry.key === key) { // equal
-//                     return i;
-//                 }
-//             }
-//             return -1;
-//         };
-//     }
-// }
 
-// let user=0;
 
 // 定义所有房间对象{roomid,{uid}}
 const roomMaps=new ZeroRTCMap()
@@ -359,8 +291,9 @@ const server=ws.createServer((conn)=>{
         })
 }).listen(port);
 
-function broadcast(str){
-    server.connections.forEach((connection)=>{
-        connection.sendText(str);
-    })
-}
+// 向所有client广播
+// function broadcast(str){
+//     server.connections.forEach((connection)=>{
+//         connection.sendText(str);
+//     })
+// }

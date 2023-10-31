@@ -11,6 +11,10 @@ let localUserId=Math.random().toString(36).substring(2);
 let remoteUserId=[]
 let roomId=1
 let pc;
+// 信令服务器
+const serverUrl="8.134.73.52:8888"
+// coturn服务器
+const coturnUrl="8.134.73.52:3478"
 
 const app=document.querySelector("#app")
 const ROOMID=document.querySelector("#RoomId")
@@ -227,7 +231,7 @@ class ZeroRTCEngine{
         this.signaling.send(message);
     }
 }
-zeroRTC=new ZeroRTCEngine("wss://8.134.73.52:8888/ws")
+zeroRTC=new ZeroRTCEngine("wss://"+serverUrl+"/ws")
 // zeroRTC=new ZeroRTCEngine("ws://127.0.0.1:7777")
 
 function createPeerConnection(remoteUid){
@@ -240,15 +244,15 @@ function createPeerConnection(remoteUid){
         iceServers:[
             {
                 "urls":[
-                    "turn:8.134.73.52:3478?transport=udp",
-                    "turn:8.134.73.52:3478?transport=tcp",
+                    "turn:"+coturnUrl+"?transport=udp",
+                    "turn:"+coturnUrl+"?transport=tcp",
                 ],
                 "username":"ihci",
                 "credential":"ihci"
             },
             {
                 "urls":[
-                    "stun:8.134.73.52:3478"
+                    "stun:"+coturnUrl+"",
                 ]
             }
         ]
@@ -257,9 +261,28 @@ function createPeerConnection(remoteUid){
     console.log(remoteUid);
     
     pc = new RTCPeerConnection(defaultConfiguration);
-        pc.onicecandidate = function(event) {
-            handleIceCandidate(event, remoteUid); // Pass remoteUid as an argument to handleIceCandidate
-        };
+        pc.onicecandidate = function(ev){
+            console.log(remoteUid);
+    
+            console.log('handleIceCandidate');
+            if (ev.candidate) {
+                const jsonMsg = {
+                    'cmd': SIGNAL_TYPE_CANDIDATE,
+                    'roomId': roomId,
+                    'uid': localUserId,
+                    'remoteUid': remoteUid,
+                    'msg': JSON.stringify(ev.candidate) 
+                };
+                // console.log(jsonMsg);
+                
+                const mes = JSON.stringify(jsonMsg)
+                zeroRTC.sendMsg(mes);
+                console.log('已发送请求连接：' + mes);
+            } else {
+                // stun失败
+                console.log("停止连接");
+            }
+        } 
         pc.ontrack = handleRemoteStreamAdd;
         localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
 }
